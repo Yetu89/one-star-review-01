@@ -8,22 +8,25 @@ import { join } from "node:path";
 const TEXT =
   "★☆☆☆☆ Gravity. Works 24/7 with no off switch and drops everything I own. Worst employee I have ever had, somehow never fired.";
 
-function validate(text: string): void {
+const MAX_CHARS = 160;
+
+function validate(text: string): number {
   const length = [...text].length; // code points, per the gate
-  if (length < 1 || length > 160) {
-    throw new Error(`entry must be 1-160 characters, got ${length}`);
+  if (length < 1 || length > MAX_CHARS) {
+    throw new Error(`entry must be 1-${MAX_CHARS} characters, got ${length}`);
   }
   if (text.trim().length === 0) {
     throw new Error("entry must not be only white space");
   }
-  if (text.includes("\n") || text.includes("\r")) {
+  if (/[\n\r]/.test(text)) {
     throw new Error("entry must be a single line");
   }
+  return length;
 }
 
-validate(TEXT);
+const charCount = validate(TEXT);
 
 const outDir = process.env.OUTPUT_DIR || "/output";
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "entry.txt"), TEXT, "utf8");
-console.log(`wrote entry.txt (${[...TEXT].length} chars) to ${outDir}`);
+console.log(`wrote entry.txt (${charCount} chars) to ${outDir}`);
